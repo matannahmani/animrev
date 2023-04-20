@@ -12,7 +12,7 @@ interface IAnime {
   type: string;
   format: string;
   status: string;
-  episodes: number;
+  episodes?: number;
   duration?: number;
   genres: string[];
   coverImage?: {
@@ -49,50 +49,50 @@ type GQLResponse = {
 };
 
 const QUERY = `
-          query($page: Int, $perPage: Int, $maxRating: Int) {
-            Page(page: $page, perPage: $perPage) {
-              media(type: ANIME, averageScore_greater: $maxRating) {
-                title {
-                  romaji
-                  english
-                  native
-                }
-                id
-                type
-                format
-                status
-                episodes
-                duration
-                genres
-                coverImage {
-                  extraLarge
-                  large
-                  medium
-                }
-                bannerImage
-                averageScore
-                meanScore
-                popularity
-                startDate {
-                  year
-                  month
-                  day
-                }
-                endDate {
-                  year
-                  month
-                  day
-                }
-                season
-                seasonYear
-                description
-              }
-              pageInfo {
-                hasNextPage
-                total
-              }
-            }
-          }
+query($page: Int, $perPage: Int, $maxRating: Int) {
+  Page(page: $page, perPage: $perPage) {
+    media(type: ANIME, averageScore_greater: $maxRating,sort: POPULARITY_DESC) {
+      title {
+        romaji
+        english
+        native
+      }
+      id
+      type
+      format
+      status
+      episodes
+      duration
+      genres
+      coverImage {
+        extraLarge
+        large
+        medium
+      }
+      bannerImage
+      averageScore
+      meanScore
+      popularity
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+      season
+      seasonYear
+      description
+    }
+    pageInfo {
+      hasNextPage
+      total
+    }
+  }
+}
 `;
 
 class AniListScraper {
@@ -116,9 +116,11 @@ class AniListScraper {
       },
       body: JSON.stringify({
         query: QUERY,
-        page: this.page,
-        perPage: this.batchSize,
-        maxRating: this.maxRating,
+        variables: {
+          page: this.page,
+          perPage: this.batchSize,
+          maxRating: this.maxRating,
+        },
       }),
     });
     const { data, errors } = (await response.json()) as GQLResponse;
@@ -164,33 +166,16 @@ class AniListScraper {
       const coverImageUrl =
         coverImage?.extraLarge || coverImage?.large || coverImage?.medium;
 
-      const animeDBObject: Prisma.AnimeCreateInput = {
-        id,
+      const animeDBObject: Prisma.AnimeCreateManyInput = {
+        aniListId: id,
         romajiTitle: title.romaji,
         englishTitle: title.english,
         nativeTitle: title.native,
         type,
         format,
         status,
-        episodes,
+        episodes: episodes || 0,
         duration: duration,
-        AnimeGenre: {
-          connectOrCreate: genres.map((genre) => ({
-            where: {
-              animeId_genreId: {
-                animeId: id,
-                genreId: genre,
-              },
-            },
-            create: {
-              genre: {
-                create: {
-                  name: genre,
-                },
-              },
-            },
-          })),
-        },
         coverImage: coverImageUrl,
         bannerImage: bannerImage,
         averageScore,
@@ -209,7 +194,40 @@ class AniListScraper {
       return animeDBObject;
     });
 
-    await prisma.anime.createMany({ data: createShows });
+    // here we create the animes
+    await prisma.anime.createMany({ data: createShows, skipDuplicates: true });
+    // here we retrieve the animes we just created
+    const createdAnime = await prisma.anime.findMany({
+      where: { aniListId: { in: animeBatch.map((anime) => anime.id) } },
+      select: { id: true, aniListId: true },
+    });
+    // here we map the genres to an array of unique genres to filter out duplicates
+    const uniqueGenres = Array.from(
+      new Set(animeBatch.flatMap((anime) => anime.genres))
+    );
+    // here we create the genres
+    await prisma.genre.createMany({
+      data: uniqueGenres.map((genre) => ({ name: genre })),
+      skipDuplicates: true,
+    });
+
+    const animeGenres: Prisma.AnimeGenreCreateManyInput[] = [];
+    // here we map the genres to the anime to create the connection
+    animeBatch.forEach((anime) => {
+      const animeId =
+        createdAnime.find((a) => a.aniListId === anime.id)?.id ?? -1;
+      anime.genres.forEach((genre) => {
+        return animeGenres.push({
+          animeId,
+          genreId: genre,
+        });
+      });
+    });
+    // here we connect the genres to the anime
+    await prisma.animeGenre.createMany({
+      data: animeGenres,
+      skipDuplicates: true,
+    });
 
     console.log(
       `Seeded ${createShows.length} shows (total ${
@@ -222,12 +240,13 @@ class AniListScraper {
     console.log("Seeding AniList...");
     try {
       while (this.hasNextPage) {
+        const now = new Date();
         const animeBatch = await this.fetchShows();
         if (animeBatch.length > 0) {
           await this.createAnimeBatch(animeBatch);
         }
-
-        await this.sleep(1000); // Wait 1 second between requests to avoid rate limiting
+        const timeElapsed = new Date().getTime() - now.getTime();
+        console.log(`Time elapsed: ${timeElapsed}ms`);
       }
     } catch (error) {
       console.error(error);

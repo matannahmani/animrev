@@ -100,7 +100,8 @@ model UserAnimeList {
 }
 
 model Anime {
-  id           Int       @id @map(name: "anime_id")
+  id           Int       @id @map(name: "anime_id") @default(autoincrement())
+  aniListId    Int       @map(name: "ani_list_id") @unique
   romajiTitle  String    @map(name: "romaji_title")
   englishTitle String?   @map(name: "english_title")
   nativeTitle  String?   @map(name: "native_title")
@@ -118,10 +119,12 @@ model Anime {
   endDate      DateTime? @map(name: "end_date")
   season       String?   @map(name: "season")
   seasonYear   Int?      @map(name: "season_year")
-  description  String?   @map(name: "description")
+  description  String?   @map(name: "description") @db.Text
 
   AnimeGenre AnimeGenre[]
 
+  @@index([season,seasonYear])
+  @@index([aniListId])
   @@index([status])
   @@index([popularity, averageScore])
 }
