@@ -1,5 +1,4 @@
-import fetch from "node-fetch";
-import { PrismaClient, Anime } from "@prisma/client";
+import { PrismaClient, Anime, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -39,16 +38,26 @@ interface IAnime {
   seasonYear?: number;
   description?: string;
 }
+type GQLResponse = {
+  data: {
+    Page: {
+      media: IAnime[];
+      pageInfo: { hasNextPage: boolean; total: number };
+    };
+  };
+  errors: string[] | string | undefined;
+};
+
 const QUERY = `
-          query($page: Int, $perPage: Int, $maxRating: Float) {
+          query($page: Int, $perPage: Int, $maxRating: Int) {
             Page(page: $page, perPage: $perPage) {
               media(type: ANIME, averageScore_greater: $maxRating) {
-                id
                 title {
                   romaji
                   english
                   native
                 }
+                id
                 type
                 format
                 status
@@ -101,28 +110,21 @@ class AniListScraper {
   private async fetchShows(): Promise<IAnime[]> {
     const response = await fetch(this.apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       body: JSON.stringify({
         query: QUERY,
-        variables: {
-          page: this.page,
-          perPage: this.batchSize,
-          maxRating: this.maxRating,
-        },
+        page: this.page,
+        perPage: this.batchSize,
+        maxRating: this.maxRating,
       }),
     });
-
-    const { data, errors } = (await response.json()) as {
-      data: {
-        Page: {
-          media: IAnime[];
-          pageInfo: { hasNextPage: boolean; total: number };
-        };
-      };
-      errors: string[] | string | undefined;
-    };
+    const { data, errors } = (await response.json()) as GQLResponse;
 
     if (errors) {
+      console.error(errors);
       throw new Error(
         Array.isArray(errors) ? errors?.join(", ") : "Unknown error"
       );
@@ -137,11 +139,11 @@ class AniListScraper {
   }
 
   private async createAnimeBatch(animeBatch: IAnime[]): Promise<void> {
-    const createShows: Anime[] = animeBatch.map((anime) => {
+    const createShows: Prisma.AnimeCreateInput[] = animeBatch.map((anime) => {
       const {
-        id,
         title,
         type,
+        id,
         format,
         status,
         episodes,
@@ -162,19 +164,35 @@ class AniListScraper {
       const coverImageUrl =
         coverImage?.extraLarge || coverImage?.large || coverImage?.medium;
 
-      return <Anime>{
+      const animeDBObject: Prisma.AnimeCreateInput = {
         id,
         romajiTitle: title.romaji,
-        englishTitle: title.english ?? null,
-        nativeTitle: title.native ?? null,
+        englishTitle: title.english,
+        nativeTitle: title.native,
         type,
         format,
         status,
         episodes,
-        duration,
-        genres,
+        duration: duration,
+        AnimeGenre: {
+          connectOrCreate: genres.map((genre) => ({
+            where: {
+              animeId_genreId: {
+                animeId: id,
+                genreId: genre,
+              },
+            },
+            create: {
+              genre: {
+                create: {
+                  name: genre,
+                },
+              },
+            },
+          })),
+        },
         coverImage: coverImageUrl,
-        bannerImage,
+        bannerImage: bannerImage,
         averageScore,
         meanScore,
         popularity,
@@ -188,6 +206,7 @@ class AniListScraper {
         seasonYear,
         description,
       };
+      return animeDBObject;
     });
 
     await prisma.anime.createMany({ data: createShows });
@@ -200,6 +219,7 @@ class AniListScraper {
   }
 
   public async scrape(): Promise<void> {
+    console.log("Seeding AniList...");
     try {
       while (this.hasNextPage) {
         const animeBatch = await this.fetchShows();

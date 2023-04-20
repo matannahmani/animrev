@@ -128,12 +128,12 @@ model Anime {
 
 model AnimeGenre {
   animeId Int
-  genreId Int
+  genreId String
 
   // Define the many-to-many relation with Anime
   anime Anime @relation(fields: [animeId], references: [id])
   // Define the many-to-many relation with Genre
-  genre Genre @relation(fields: [genreId], references: [id])
+  genre Genre @relation(fields: [genreId], references: [name])
 
   @@id([animeId, genreId])
   @@index([animeId])
@@ -141,8 +141,7 @@ model AnimeGenre {
 }
 
 model Genre {
-  id   Int    @id @map(name: "genre_id")
-  name String @map(name: "name")
+  name String @unique @id
 
   AnimeGenre AnimeGenre[]
 }
