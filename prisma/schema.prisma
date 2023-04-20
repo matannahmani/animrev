@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
+  // Further reading:
+  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
+  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Example {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Necessary for Next auth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  UserAnimeList UserAnimeList[]
+  UserLikeList  UserLikeList[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum AnimeStatus {
+  CURRENT
+  PLANNING
+  COMPLETED
+  DROPPED
+  PAUSED
+}
+
+model UserLikeList {
+  animeId Int
+  userId  String
+  User    User   @relation(fields: [userId], references: [id])
+
+  @@id([animeId, userId])
+  @@index([userId])
+}
+
+model UserAnimeList {
+  animeId Int
+  userId  String
+  status  AnimeStatus
+  score   Int
+  User    User        @relation(fields: [userId], references: [id])
+
+  @@id([animeId, userId])
+  @@index([userId])
+}
+
+model Anime {
+  id           Int       @id @map(name: "anime_id")
+  romajiTitle  String    @map(name: "romaji_title")
+  englishTitle String?   @map(name: "english_title")
+  nativeTitle  String?   @map(name: "native_title")
+  type         String    @map(name: "type")
+  format       String    @map(name: "format")
+  status       String    @map(name: "status")
+  episodes     Int       @map(name: "episodes")
+  duration     Int?      @map(name: "duration")
+  coverImage   String?   @map(name: "cover_image")
+  bannerImage  String?   @map(name: "banner_image")
+  averageScore Float     @map(name: "average_score")
+  meanScore    Int       @map(name: "mean_score")
+  popularity   Int       @map(name: "popularity")
+  startDate    DateTime? @map(name: "start_date")
+  endDate      DateTime? @map(name: "end_date")
+  season       String?   @map(name: "season")
+  seasonYear   Int?      @map(name: "season_year")
+  description  String?   @map(name: "description")
+
+  AnimeGenre AnimeGenre[]
+
+  @@index([status])
+  @@index([popularity, averageScore])
+}
+
+model AnimeGenre {
+  animeId Int
+  genreId Int
+
+  // Define the many-to-many relation with Anime
+  anime Anime @relation(fields: [animeId], references: [id])
+  // Define the many-to-many relation with Genre
+  genre Genre @relation(fields: [genreId], references: [id])
+
+  @@id([animeId, genreId])
+  @@index([animeId])
+  @@index([genreId])
+}
+
+model Genre {
+  id   Int    @id @map(name: "genre_id")
+  name String @map(name: "name")
+
+  AnimeGenre AnimeGenre[]
+}
