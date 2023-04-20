@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/config/site";
+import { TrpcProvider } from "@/utils/trpc-provider";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -58,18 +59,17 @@ export const metadata: Metadata = {
 interface RootLayoutProps {
   children: React.ReactNode;
 }
-
-export default function RootLayout({ children }: RootLayoutProps) {
+const MyApp = ({ children }: RootLayoutProps) => {
   return (
-    <>
-      <html lang="en" suppressHydrationWarning>
-        <head />
-        <body
-          className={cn(
-            "min-h-screen bg-background font-sans antialiased",
-            fontSans.variable
-          )}
-        >
+    <html lang="en" suppressHydrationWarning>
+      <head />
+      <body
+        className={cn(
+          "min-h-screen bg-background font-sans antialiased",
+          fontSans.variable
+        )}
+      >
+        <TrpcProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative flex min-h-screen flex-col">
               {/* <SiteHeader /> */}
@@ -80,8 +80,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           {/* <StyleSwitcher />
           <Analytics /> */}
           <Toaster />
-        </body>
-      </html>
-    </>
+        </TrpcProvider>
+      </body>
+    </html>
   );
-}
+};
+
+export default MyApp;
