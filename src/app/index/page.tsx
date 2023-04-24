@@ -22,7 +22,7 @@ async function ComboBoxLoader() {
 async function HomePage() {
   return (
     <main>
-      <h1>Home Page</h1>
+      <h1>Season 2023</h1>
       <Suspense fallback={<Skeleton className="h-12 w-[200px] " />}>
         <ComboBoxLoader />
       </Suspense>

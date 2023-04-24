@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/config/site";
+import Image from "next/image";
+import Navbar from "@/components/layout/navbar";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -58,6 +60,22 @@ export const metadata: Metadata = {
 interface RootLayoutProps {
   children: React.ReactNode;
 }
+
+function SombraEffect() {
+  return (
+    <div className="fixed flex min-h-screen w-full items-center justify-center">
+      <div className="absolute z-10 h-full w-full bg-black opacity-50" />
+      <Image
+        priority
+        className="z-0 blur-sm filter"
+        src="/backgrounds/home.jpg"
+        alt="home-screen-image"
+        fill
+      />
+    </div>
+  );
+}
+
 const MyApp = ({ children }: RootLayoutProps) => {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -69,9 +87,10 @@ const MyApp = ({ children }: RootLayoutProps) => {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="relative flex min-h-screen flex-col">
-            {/* <SiteHeader /> */}
-            <div className="flex-1">{children}</div>
+          <SombraEffect />
+          <div className="px:1 container relative flex min-h-screen flex-col sm:px-2 md:px-4">
+            <Navbar />
+            <div className="flex flex-auto">{children}</div>
             {/* <SiteFooter /> */}
           </div>
         </ThemeProvider>

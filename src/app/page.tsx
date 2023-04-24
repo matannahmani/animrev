@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import ComboBox from "./combo-box";
+import ComboBox from "./_components/combo-box";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiVanila } from "@/utils/ssr";
@@ -22,10 +22,10 @@ async function ComboBoxLoader() {
 async function HomePage() {
   return (
     <main>
-      <h1>Home Page</h1>
-      <Suspense fallback={<Skeleton className="h-12 w-[200px] " />}>
+      <h1>SPRING 2023</h1>
+      {/* <Suspense fallback={<Skeleton className="h-12 w-[200px] " />}>
         <ComboBoxLoader />
-      </Suspense>
+      </Suspense> */}
     </main>
   );
 }

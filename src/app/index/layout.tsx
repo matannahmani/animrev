@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/config/site";
+import Image from "next/image";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -63,13 +64,11 @@ const MyApp = ({ children }: RootLayoutProps) => {
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
-        )}
+        className={cn("min-h-screen  font-sans antialiased", fontSans.variable)}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="relative flex min-h-screen flex-col">
+            <Image src="/backgrounds/home.jpg" alt="home-screen-image" fill />
             {/* <SiteHeader /> */}
             <div className="flex-1">{children}</div>
             {/* <SiteFooter /> */}

@@ -65,8 +65,15 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "ping-slow": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "10%": { transform: "scale(2)", opaclity: "0" },
+          "11%": { transform: "scale(1)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "0" },
+        },
       },
       animation: {
+        "ping-slow": "ping-slow 5s cubic-bezier(0, 0, 0.2, 1) infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
