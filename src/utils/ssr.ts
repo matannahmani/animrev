@@ -1,13 +1,6 @@
 import superjson from "superjson";
-import { appRouter } from "@/server/api/root";
-import { prisma } from "@/server/db";
-import { createServerSideHelpers } from "@trpc/react-query/server";
+import type { AppRouter } from "@/server/api/root";
+import { createTRPCProxyClient } from "@trpc/client";
+import { trpcConfigSSR } from "./base";
 
-export const ssrApi = createServerSideHelpers({
-  router: appRouter,
-  transformer: superjson,
-  ctx: {
-    session: null,
-    prisma,
-  },
-});
+export const apiVanila = createTRPCProxyClient<AppRouter>(trpcConfigSSR);

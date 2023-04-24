@@ -1,26 +1,31 @@
 import { Metadata } from "next";
-import { ComboBox } from "./combo-box";
-import getQueryClient from "@/components/utils/store";
-import { Hydrate, dehydrate } from "@tanstack/react-query";
-import { ssrApi } from "@/utils/ssr";
+import ComboBox from "./combo-box";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { apiVanila } from "@/utils/ssr";
 
+export const runtime = "experimental-edge";
 export const metadata: Metadata = {
   title: "AnimRev",
   description: "AnimRev Home Page",
 };
 /// key note this is just playground
 
-async function HomePage() {
-  await ssrApi.v1.genre.list.prefetch();
-  const dehydratedState = ssrApi.dehydrate({
-    shouldDehydrateQuery: () => true,
+async function ComboBoxLoader() {
+  const genres = await apiVanila.v1.genre.list.query(undefined, {
+    context: {},
   });
+
+  return <ComboBox genres={genres} />;
+}
+
+async function HomePage() {
   return (
     <main>
-      <Hydrate state={dehydratedState}>
-        <h1>Home Page</h1>
-        <ComboBox />
-      </Hydrate>
+      <h1>Home Page</h1>
+      <Suspense fallback={<Skeleton className="h-12 w-[200px] " />}>
+        <ComboBoxLoader />
+      </Suspense>
     </main>
   );
 }

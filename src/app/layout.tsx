@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { siteConfig } from "@/config/site";
-import { TrpcProvider } from "@/utils/trpc-provider";
 export const metadata: Metadata = {
   title: {
     default: siteConfig.name,
@@ -69,18 +68,16 @@ const MyApp = ({ children }: RootLayoutProps) => {
           fontSans.variable
         )}
       >
-        <TrpcProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex min-h-screen flex-col">
-              {/* <SiteHeader /> */}
-              <div className="flex-1">{children}</div>
-              {/* <SiteFooter /> */}
-            </div>
-          </ThemeProvider>
-          {/* <StyleSwitcher />
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="relative flex min-h-screen flex-col">
+            {/* <SiteHeader /> */}
+            <div className="flex-1">{children}</div>
+            {/* <SiteFooter /> */}
+          </div>
+        </ThemeProvider>
+        {/* <StyleSwitcher />
           <Analytics /> */}
-          <Toaster />
-        </TrpcProvider>
+        <Toaster />
       </body>
     </html>
   );

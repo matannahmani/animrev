@@ -17,25 +17,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { api } from "@/utils/api";
-import { Skeleton } from "@/components/ui/skeleton";
-import type { RouterOutputs } from "@/utils/api";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import type { RouterOutputs } from "@/utils/api";
 type Genre = RouterOutputs["v1"]["genre"]["list"];
-export function ComboBox() {
-  return (
-    <React.Suspense fallback={<Skeleton className="h-12 w-[200px]" />}>
-      <ComboBoxLoaded />
-    </React.Suspense>
-  );
-}
 
-function ComboBoxLoaded() {
-  const { data: genres } = api.v1.genre.list.useQuery(undefined, {
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
-    suspense: true,
-  });
+export default function ComboBox({ genres }: { genres?: Genre }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState<string[]>([]);
   return (
@@ -45,7 +31,7 @@ function ComboBoxLoaded() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="h-12 w-[200px] "
+          className="h-12 w-[200px] bg-red-900 "
         >
           <div className="ml-[auto] flex h-6 items-center">
             <ScrollArea className="h-full w-full">

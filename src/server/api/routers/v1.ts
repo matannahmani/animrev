@@ -11,8 +11,9 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const v1 = createTRPCRouter({
   genre: createTRPCRouter({
-    list: publicProcedure.query(async () => {
-      await sleep(500);
+    list: publicProcedure.query(async ({ ctx }) => {
+      console.log("LIST GENRES");
+      await sleep(2500);
       const genres = await prisma.genre.findMany({});
       return genres;
     }),
