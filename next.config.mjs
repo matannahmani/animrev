@@ -18,11 +18,11 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
-  modularizeImports: {
-    "lucide-react": {
-      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
-    },
-  },
+  // modularizeImports: {
+  //   "lucide-react": {
+  //     transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
+  //   },
+  // },
   experimental: {
     appDir: true,
   },

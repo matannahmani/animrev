@@ -1,9 +1,5 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { apiVanila } from "@/utils/ssr";
 import CardSection from "./card-section";
-import { RQProvider } from "@/components/rq-provider";
 
 // export const runtime = "experimental-edge";
 export const metadata: Metadata = {

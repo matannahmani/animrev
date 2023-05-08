@@ -2,7 +2,6 @@
 import { trpcConfigSSR } from "@/utils/base";
 import { clientApi } from "@/utils/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
 import React, { useState } from "react";
 
 export function RQProvider({ children }: { children: React.ReactNode }) {
