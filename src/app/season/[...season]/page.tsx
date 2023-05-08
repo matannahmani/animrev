@@ -31,10 +31,25 @@ function extractAndValidateSeason(season: string[]) {
   };
 }
 
+// refactor to other file
 function CardSkeleton() {
   return (
-    <div className="flex flex-col items-center space-y-4">
-      <Skeleton className="h-[340px] w-[217px] rounded-sm " />
+    <div
+      className=" flex h-[265px] w-full max-w-md flex-wrap overflow-hidden
+    rounded-md bg-card text-card-foreground shadow-sm
+    "
+    >
+      {/* image */}
+      <Skeleton className="h-[265px] w-[185px] rounded-none " />
+      {/* title */}
+      <div className="flex-1 space-y-1 p-2">
+        <Skeleton className="mb-2 h-[32px] w-full rounded-sm " />
+        <Skeleton className="h-[10px] w-full rounded-sm " />
+        <Skeleton className="h-[10px] w-full rounded-sm " />
+        <Skeleton className="h-[10px] w-full rounded-sm " />
+        <Skeleton className="h-[10px] w-[80%] rounded-sm " />
+      </div>
+
       {/* <Skeleton className="h-[20px] w-[217px] " /> */}
     </div>
   );
@@ -52,7 +67,7 @@ function SeasonPage({
   return (
     <>
       <div className="flex flex-wrap content-start ">
-        <div className="flex flex-auto cursor-pointer  items-center space-x-2">
+        <div className="flex flex-auto cursor-pointer select-none  items-center space-x-2">
           <div className="relative h-6 w-6">
             <CalendarDaysIcon className="absolute h-full w-full" />
             <span className="absolute inline-flex h-full w-full animate-ping-slow rounded-full bg-orange-400 opacity-75"></span>
@@ -63,7 +78,7 @@ function SeasonPage({
         </div>
         <div className="flex-space-2 my-auto mt-6 flex flex-wrap justify-center gap-4 gap-y-12">
           {/* load childrens or skeletons for now */}
-          {new Array(10).fill(0).map((i, index) => (
+          {new Array(6).fill(0).map((i, index) => (
             <CardSkeleton key={index} />
           ))}
         </div>

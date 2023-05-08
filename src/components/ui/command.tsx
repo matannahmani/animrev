@@ -148,6 +148,7 @@ export {
   CommandInput,
   CommandList,
   CommandEmpty,
+  CommandPrimitive,
   CommandGroup,
   CommandItem,
   CommandShortcut,

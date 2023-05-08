@@ -87,7 +87,7 @@ const MyApp = ({ children }: RootLayoutProps) => {
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <SombraEffect />
+          {/* <SombraEffect /> */}
           <div className="px:1 container relative flex min-h-screen flex-col sm:px-2 md:px-4">
             <Navbar />
             <div className="flex flex-auto">{children}</div>

@@ -2,9 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { buttonVariants } from "../ui/button";
 import { usePathname, useSearchParams } from "next/navigation";
-
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
 const currentMonth = currentDate.getMonth() + 1;
@@ -39,16 +37,16 @@ const NavbarPaths = [
 const Navbar = () => {
   const pathname = usePathname();
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark flex h-12 items-center py-10">
-      <div className="container-fluid space-x-4 first:mx-0">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark flex h-12 items-center overflow-x-auto overflow-y-hidden py-10">
+      <div className="container-fluid flex space-x-4 first:mx-0">
         {NavbarPaths.map((path, index) => {
           return (
             <Link
               className={cn(
-                "duration-250 text-xl transition-all hover:font-semibold hover:opacity-100",
+                "relative flex opacity-90 transition-opacity duration-200 hover:opacity-100",
                 pathname === path.path
-                  ? "font-semibold opacity-100"
-                  : "opacity-50"
+                  ? "font-bold opacity-100"
+                  : "font-semibold"
               )}
               href={path.path}
               key={path.path}
