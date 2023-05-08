@@ -1,3 +1,4 @@
+import defaultTheme from "tailwindcss/defaultTheme";
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -8,11 +9,19 @@ module.exports = {
     "./app/**/*.{ts,tsx}",
   ],
   theme: {
+    screens: {
+      xs: "360px",
+      ...defaultTheme.screens,
+    },
     container: {
       center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
+      padding: {
+        xs: "0.5rem",
+        DEFAULT: "1rem",
+        sm: "2rem",
+        lg: "4rem",
+        xl: "5rem",
+        "2xl": "6rem",
       },
     },
     extend: {
@@ -65,8 +74,15 @@ module.exports = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: 0 },
         },
+        "ping-slow": {
+          "0%": { transform: "scale(1)", opacity: "1" },
+          "10%": { transform: "scale(2)", opaclity: "0" },
+          "11%": { transform: "scale(1)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "0" },
+        },
       },
       animation: {
+        "ping-slow": "ping-slow 5s cubic-bezier(0, 0, 0.2, 1) infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
