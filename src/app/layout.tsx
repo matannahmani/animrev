@@ -86,7 +86,7 @@ const MyApp = ({ children }: RootLayoutProps) => {
           fontSans.variable
         )}
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark">
           {/* <SombraEffect /> */}
           <div className="px:1 container relative flex min-h-screen flex-col sm:px-2 md:px-4">
             <Navbar />

@@ -1,6 +1,7 @@
+import { type Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+
+const config: Config = {
   darkMode: ["class"],
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -67,12 +68,12 @@ module.exports = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          to: { height: "0" },
         },
         "ping-slow": {
           "0%": { transform: "scale(1)", opacity: "1" },
@@ -90,3 +91,5 @@ module.exports = {
   },
   plugins: [require("tailwindcss-animate")],
 };
+
+module.exports = config;
