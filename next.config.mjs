@@ -23,6 +23,9 @@ const config = {
   //     transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
   //   },
   // },
+  images: {
+    domains: ["s4.anilist.co"],
+  },
   experimental: {
     appDir: true,
   },

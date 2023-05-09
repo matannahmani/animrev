@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import * as React from "react";
-import { Calendar, MoreHorizontal, Tags, Trash, User } from "lucide-react";
+import { MoreHorizontal, Tags, Trash } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,14 +20,13 @@ import { cn } from "@/lib/utils";
 import { PrimitiveAtom, useAtom } from "jotai";
 import { showAtom } from "./card-section";
 import { Badge } from "@/components/ui/badge";
-import "keen-slider/keen-slider.min.css";
-import { useKeenSlider } from "keen-slider/react"; //
 import { ratingToColor } from "./ratingToColor";
 import { getTailwindColorsForString } from "./getTailwindColorsForString";
-import { MutationPlugin, ResizePlugin } from "./MutationPlugin";
 import { AnimeSearchCommand } from "./AnimeSearchCommand";
+import "swiper/css";
+import { Swiper, SwiperSlide } from "swiper/react";
 
-export type AnimeShow = RouterOutputs["v1"]["anime"]["list"][0];
+export type AnimeShow = RouterOutputs["v1"]["public"]["anime"]["retreive"][0];
 
 function AnimeCard({
   atom,
@@ -38,17 +37,7 @@ function AnimeCard({
 }) {
   const [show, setShow] = useAtom(atom);
   const [open, setOpen] = React.useState(false);
-  const [sliderRef] = useKeenSlider<HTMLDivElement>(
-    {
-      initial: 0,
-      loop: true,
-      renderMode: "performance",
-      drag: true,
-      mode: "free-snap",
-      slides: { perView: "auto", spacing: 8 },
-    },
-    [MutationPlugin, ResizePlugin]
-  );
+
   return (
     <div className="flex w-full flex-wrap items-center justify-between rounded-md border px-4 py-3 sm:flex-row sm:items-center">
       <p
@@ -107,28 +96,25 @@ function AnimeCard({
         </DropdownMenuContent>
       </DropdownMenu>
       {!!show?.AnimeGenre && (
-        <div className=" flex h-8 w-full items-center">
-          <div
-            ref={sliderRef}
-            className="keen-slider flex items-center justify-start "
-          >
-            {show.AnimeGenre.map((genre) => (
+        <Swiper
+          wrapperClass="flex h-8  items-center space-x-2"
+          className="flex w-full items-center justify-start"
+          slidesPerView={"auto"}
+        >
+          {show.AnimeGenre.map((genre) => (
+            <SwiperSlide className="flex min-w-fit max-w-fit items-center justify-start ">
               <Badge
                 key={genre.genreId}
-                style={{
-                  minWidth: "fit-content",
-                  maxWidth: "fit-content",
-                }}
                 className={cn(
-                  "keen-slider__slide cursor-pointer p-1.5 py-1",
+                  "cursor-pointer p-1.5 py-1",
                   getTailwindColorsForString(genre.genreId)
                 )}
               >
                 {genre.genreId}
               </Badge>
-            ))}
-          </div>
-        </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       )}
     </div>
   );

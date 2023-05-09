@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 /// key note this is just playground
 
 async function ComboBoxLoader() {
-  const genres = await apiVanila.v1.genre.list.query(undefined, {
+  const genres = await apiVanila.v1.public.genre.list.query(undefined, {
     context: {},
   });
 

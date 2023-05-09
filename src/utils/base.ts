@@ -43,14 +43,10 @@ export const trpcConfigSSR = {
     httpLink({
       url: `${getBaseUrl()}/api/trpc`,
       async headers(ctx) {
-        // if headers and headers are object
-        if (
-          ctx.op.context?.headers &&
-          typeof ctx.op.context.headers === "object"
-        ) {
-          return ctx.op.context.headers as Record<string, string>;
-        }
-        return {};
+        const opCtx = ctx.op.context as RequestInit;
+        return {
+          ...opCtx.headers,
+        };
       },
     }),
   ],

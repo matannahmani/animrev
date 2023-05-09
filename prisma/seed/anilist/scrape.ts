@@ -1,4 +1,10 @@
-import { PrismaClient, Anime, Prisma } from "@prisma/client";
+import {
+  PrismaClient,
+  Anime,
+  Prisma,
+  ConnectionType,
+  PrismaPromise,
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -34,6 +40,20 @@ interface IAnime {
     month: number;
     day: number;
   };
+  studios?: {
+    nodes: {
+      name: string;
+    }[];
+  };
+  relations?: {
+    edges: {
+      node: {
+        id: number;
+      };
+      id: number;
+      relationType: string;
+    }[];
+  };
   season?: string;
   seasonYear?: number;
   description?: string;
@@ -49,9 +69,9 @@ type GQLResponse = {
 };
 
 const QUERY = `
-query($page: Int, $perPage: Int, $maxRating: Int) {
+query($page: Int, $perPage: Int, $minRating: Int) {
   Page(page: $page, perPage: $perPage) {
-    media(type: ANIME, averageScore_greater: $maxRating,sort: POPULARITY_DESC) {
+    media(type: ANIME, averageScore_greater: $minRating,sort: POPULARITY_DESC) {
       title {
         romaji
         english
@@ -71,6 +91,11 @@ query($page: Int, $perPage: Int, $maxRating: Int) {
       }
       bannerImage
       averageScore
+      studios(isMain: true) {
+        nodes {
+          name
+        }
+      }
       meanScore
       popularity
       startDate {
@@ -84,8 +109,17 @@ query($page: Int, $perPage: Int, $maxRating: Int) {
         day
       }
       season
+      relations {
+        edges {
+          node {
+            id
+          }
+          id
+          relationType
+        }
+      }
       seasonYear
-      description
+      description (asHtml: false)
     }
     pageInfo {
       hasNextPage
@@ -95,13 +129,42 @@ query($page: Int, $perPage: Int, $maxRating: Int) {
 }
 `;
 
+const truncateDB = async (): Promise<void> => {
+  const transactions: PrismaPromise<any>[] = [];
+  transactions.push(prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 0;`);
+
+  const tablenames = await prisma.$queryRaw<
+    Array<{ TABLE_NAME: string }>
+  >`SELECT TABLE_NAME from information_schema.TABLES WHERE TABLE_SCHEMA = 'tests';`;
+
+  for (const { TABLE_NAME } of tablenames) {
+    if (TABLE_NAME !== "_prisma_migrations") {
+      try {
+        transactions.push(prisma.$executeRawUnsafe(`TRUNCATE ${TABLE_NAME};`));
+      } catch (error) {
+        console.log({ error });
+      }
+    }
+  }
+
+  transactions.push(prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 1;`);
+
+  try {
+    await prisma.$transaction(transactions);
+  } catch (error) {
+    console.log({ error });
+  }
+};
+
 class AniListScraper {
   private batchSize = 1000;
-  private maxRating = 6;
+  private minRating = 6;
   private page = 1;
   private hasNextPage = true;
 
-  constructor(private readonly apiUrl: string) {}
+  constructor(private readonly apiUrl: string) {
+    // truncateDB();
+  }
 
   private async sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -119,7 +182,7 @@ class AniListScraper {
         variables: {
           page: this.page,
           perPage: this.batchSize,
-          maxRating: this.maxRating,
+          minRating: this.minRating,
         },
       }),
     });
@@ -141,66 +204,128 @@ class AniListScraper {
   }
 
   private async createAnimeBatch(animeBatch: IAnime[]): Promise<void> {
-    const createShows: Prisma.AnimeCreateInput[] = animeBatch.map((anime) => {
-      const {
-        title,
-        type,
-        id,
-        format,
-        status,
-        episodes,
-        duration,
-        genres,
-        coverImage,
-        bannerImage,
-        averageScore,
-        meanScore,
-        popularity,
-        startDate,
-        endDate,
-        season,
-        seasonYear,
-        description,
-      } = anime;
-
-      const coverImageUrl =
-        coverImage?.extraLarge || coverImage?.large || coverImage?.medium;
-
-      const animeDBObject: Prisma.AnimeCreateManyInput = {
-        aniListId: id,
-        romajiTitle: title.romaji,
-        englishTitle: title.english,
-        nativeTitle: title.native,
-        type,
-        format,
-        status,
-        episodes: episodes || 0,
-        duration: duration,
-        coverImage: coverImageUrl,
-        bannerImage: bannerImage,
-        averageScore,
-        meanScore,
-        popularity,
-        startDate: startDate
-          ? new Date(startDate.year, startDate.month - 1, startDate.day)
-          : undefined,
-        endDate: endDate
-          ? new Date(endDate.year, endDate.month - 1, endDate.day)
-          : undefined,
-        season,
-        seasonYear,
-        description,
-      };
-      return animeDBObject;
+    // first we create the studios
+    const studioNames = Array.from(
+      new Set(
+        animeBatch.flatMap(
+          (anime) => anime.studios?.nodes.map((studio) => studio.name) || []
+        )
+      )
+    );
+    await prisma.studio.createMany({
+      data: studioNames.map((name) => ({ name })),
+      skipDuplicates: true,
     });
+    // then we get the studios from the db
+    const studios = await prisma.studio.findMany({
+      where: {
+        name: {
+          in: studioNames,
+        },
+      },
+    });
+
+    const createShows: Prisma.AnimeCreateManyInput[] = animeBatch.map(
+      (anime) => {
+        const {
+          title,
+          type,
+          id,
+          format,
+          status,
+          episodes,
+          duration,
+          genres,
+          coverImage,
+          bannerImage,
+          averageScore,
+          meanScore,
+          popularity,
+          startDate,
+          endDate,
+          season,
+          seasonYear,
+          description,
+        } = anime;
+
+        const coverImageUrl =
+          coverImage?.extraLarge || coverImage?.large || coverImage?.medium;
+
+        const animeDBObject: Prisma.AnimeCreateManyInput = {
+          aniListId: id,
+          romajiTitle: title.romaji,
+          englishTitle: title.english,
+          nativeTitle: title.native,
+          type,
+          format,
+          status,
+          studioId:
+            studios.find(
+              (studio) => studio.name === anime?.studios?.nodes?.[0]?.name
+            )?.id || -1,
+          episodes: episodes || 0,
+          duration: duration,
+          coverImage: coverImageUrl,
+          bannerImage: bannerImage,
+          averageScore,
+          meanScore,
+          popularity,
+          startDate: startDate
+            ? new Date(startDate.year, startDate.month - 1, startDate.day)
+            : undefined,
+          endDate: endDate
+            ? new Date(endDate.year, endDate.month - 1, endDate.day)
+            : undefined,
+          season,
+          seasonYear,
+          description,
+        };
+        return animeDBObject;
+      }
+    );
 
     // here we create the animes
     await prisma.anime.createMany({ data: createShows, skipDuplicates: true });
+
     // here we retrieve the animes we just created
     const createdAnime = await prisma.anime.findMany({
       where: { aniListId: { in: animeBatch.map((anime) => anime.id) } },
       select: { id: true, aniListId: true },
     });
+
+    // now we gonna create the relations between the animes
+    const relations = animeBatch.map((anime) => {
+      if (!anime.relations?.edges || anime.relations.edges.length === 0) return;
+      // here we map the relations to the anime to create the connection
+      const relations: (Prisma.AnimeRelationCreateManyInput | undefined)[] =
+        anime.relations.edges.map((relation) => {
+          // check if connection type is valid part of enum
+          if (
+            !Object.values(ConnectionType).includes(
+              relation.relationType as ConnectionType
+            )
+          ) {
+            return;
+          }
+          console.log(relation.relationType, relation.node.id, relation.id);
+          return {
+            fromAnimeAniId: anime.id,
+            toAnimeAniId: relation.node.id,
+            connectionType: relation.relationType as ConnectionType,
+          };
+        });
+      return relations;
+    });
+    // here we create the relations
+    await prisma.animeRelation.createMany({
+      data: relations
+        .flat()
+        .filter(
+          (relation) => relation !== undefined
+        ) as Prisma.AnimeRelationCreateManyInput[],
+      skipDuplicates: true,
+    });
+
     // here we map the genres to an array of unique genres to filter out duplicates
     const uniqueGenres = Array.from(
       new Set(animeBatch.flatMap((anime) => anime.genres))
@@ -216,6 +341,7 @@ class AniListScraper {
     animeBatch.forEach((anime) => {
       const animeId =
         createdAnime.find((a) => a.aniListId === anime.id)?.id ?? -1;
+
       anime.genres.forEach((genre) => {
         return animeGenres.push({
           animeId,
@@ -223,6 +349,9 @@ class AniListScraper {
         });
       });
     });
+
+    // next we gonna setup the relations between the animes
+
     // here we connect the genres to the anime
     await prisma.animeGenre.createMany({
       data: animeGenres,

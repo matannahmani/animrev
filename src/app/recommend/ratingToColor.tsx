@@ -1,4 +1,3 @@
-"use client";
 export const ratingToColor = (rating: number) => {
   // scale 1-100
   if (rating < 1) {

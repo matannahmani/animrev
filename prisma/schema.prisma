@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["jsonProtocol"]
 }
 
@@ -100,34 +100,69 @@ model UserAnimeList {
   @@index([userId])
 }
 
+model Studio {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  Anime Anime[]
+}
+
 model Anime {
-  id           Int       @id @map(name: "anime_id") @default(autoincrement())
-  aniListId    Int       @map(name: "ani_list_id") @unique
-  romajiTitle  String    @map(name: "romaji_title")
-  englishTitle String?   @map(name: "english_title")
-  nativeTitle  String?   @map(name: "native_title")
-  type         String    @map(name: "type")
-  format       String    @map(name: "format")
-  status       String    @map(name: "status")
-  episodes     Int       @map(name: "episodes")
-  duration     Int?      @map(name: "duration")
-  coverImage   String?   @map(name: "cover_image")
-  bannerImage  String?   @map(name: "banner_image")
-  averageScore Float     @map(name: "average_score")
-  meanScore    Int       @map(name: "mean_score")
-  popularity   Int       @map(name: "popularity")
-  startDate    DateTime? @map(name: "start_date")
-  endDate      DateTime? @map(name: "end_date")
-  season       String?   @map(name: "season")
-  seasonYear   Int?      @map(name: "season_year")
-  description  String?   @map(name: "description") @db.Text
+  id                 Int             @id @default(autoincrement()) @map(name: "anime_id")
+  aniListId          Int             @unique @map(name: "ani_list_id")
+  romajiTitle        String          @map(name: "romaji_title")
+  englishTitle       String?         @map(name: "english_title")
+  nativeTitle        String?         @map(name: "native_title")
+  type               String          @map(name: "type")
+  studio             Studio?         @relation(fields: [studioId], references: [id])
+  studioId           Int             @map(name: "studio_id")
+  format             String          @map(name: "format")
+  status             String          @map(name: "status")
+  episodes           Int             @map(name: "episodes")
+  duration           Int?            @map(name: "duration")
+  coverImage         String?         @map(name: "cover_image")
+  bannerImage        String?         @map(name: "banner_image")
+  averageScore       Float           @map(name: "average_score")
+  meanScore          Int             @map(name: "mean_score")
+  popularity         Int             @map(name: "popularity")
+  startDate          DateTime?       @map(name: "start_date")
+  endDate            DateTime?       @map(name: "end_date")
+  season             String?         @map(name: "season")
+  seasonYear         Int?            @map(name: "season_year")
+  description        String?         @map(name: "description") @db.Text 
+  AnimeGenre         AnimeGenre[]
+  relationsFromAnime AnimeRelation[] @relation("FromAnime")
+  relationsToAnime   AnimeRelation[] @relation("ToAnime")
 
-  AnimeGenre AnimeGenre[]
-
-  @@index([season,seasonYear])
+  @@index([season, seasonYear])
   @@index([aniListId])
+  @@index([description(length: 255)])
+  @@index([englishTitle])
+  @@index([romajiTitle])
   @@index([status])
   @@index([popularity, averageScore])
+  @@index([studioId])
+}
+
+enum ConnectionType {
+  SPIN_OFF
+  PREQUEL
+  SEQUEL
+  MOVIE
+}
+
+model AnimeRelation {
+  id             Int            @id @default(autoincrement())
+  fromAnimeAniId    Int            @map(name: "from_anime_id")
+  toAnimeAniId      Int            @map(name: "to_anime_id")
+  connectionType ConnectionType @map(name: "connection_type")
+
+  fromAnime Anime? @relation("FromAnime", fields: [fromAnimeAniId], references: [aniListId])
+  toAnime   Anime? @relation("ToAnime", fields: [toAnimeAniId], references: [aniListId])
+
+  @@unique([fromAnimeAniId, toAnimeAniId])
+  @@index([fromAnimeAniId])
+  @@index([toAnimeAniId])
 }
 
 model AnimeGenre {
@@ -145,7 +180,7 @@ model AnimeGenre {
 }
 
 model Genre {
-  name String @unique @id
+  name String @id @unique
 
   AnimeGenre AnimeGenre[]
 }

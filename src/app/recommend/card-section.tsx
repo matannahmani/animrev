@@ -1,6 +1,5 @@
 "use client";
 import { RQProvider } from "@/components/rq-provider";
-import AnimeCard from "./anime-card";
 import { Button } from "@/components/ui/button";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { Plus } from "lucide-react";
@@ -8,8 +7,15 @@ import { useMemo } from "react";
 import { splitAtom } from "jotai/utils";
 import { RouterOutputs } from "@/utils/api";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-
-type AnimeShow = RouterOutputs["v1"]["anime"]["list"][0];
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+import { apiVanila } from "@/utils/ssr";
+import { generatePrompt } from "./generatePrompt";
+// to reduce bundle size we use dynamic import
+const AnimeCard = dynamic(() => import("./anime-card"), {
+  loading: () => <Skeleton className="h-[61.33px] w-full" />,
+});
+type AnimeShow = RouterOutputs["v1"]["public"]["anime"]["retreive"][0];
 
 export type showAtom = AnimeShow | null;
 
@@ -19,6 +25,7 @@ export const useSelectShowsId = () => {
   const shows = useAtomValue(showsAtom);
   return shows.map((show) => show?.id);
 };
+
 const CardSectionFooter = () => {
   const [list, setList] = useAtom(showsAtom);
   const canGenerate = useMemo(() => {
@@ -41,7 +48,15 @@ const CardSectionFooter = () => {
       >
         <Plus />
       </Button>
-      <Button size="sm" disabled={!canGenerate} variant="default">
+      <Button
+        size="sm"
+        onClick={() => {
+          const prompt = generatePrompt(list);
+          console.log(prompt);
+        }}
+        disabled={!canGenerate}
+        variant="default"
+      >
         Generate List
       </Button>
     </div>

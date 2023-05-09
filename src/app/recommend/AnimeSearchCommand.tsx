@@ -21,8 +21,8 @@ export function AnimeSearchCommand({
 }) {
   const [search, setSearch] = React.useState("");
   const selectedIds = useSelectShowsId();
-  const { data, isLoading, isInitialLoading } =
-    clientApi.v1.anime.list.useQuery(
+  const { data, isInitialLoading } =
+    clientApi.v1.public.anime.retreive.useQuery(
       {
         title: search,
       },
