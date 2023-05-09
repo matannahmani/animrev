@@ -54,7 +54,6 @@ const ListDescription = async ({ id }: { id: string }) => {
 };
 
 async function ListPage({ params }: { params: { id: string } }) {
-  console.log("RSC Params", params);
   return (
     <main className=" mt-2 flex flex-wrap content-start items-start justify-center text-start">
       <div className="flex basis-full flex-col items-start justify-center">
@@ -62,11 +61,11 @@ async function ListPage({ params }: { params: { id: string } }) {
           List #{params.id}
         </h1>
         <Suspense fallback={<Skeleton className="mr-auto h-10 w-[240px]" />}>
-          <ListDescription id="1" />
+          <ListDescription id={params.id} />
         </Suspense>
       </div>
       <Suspense fallback={<Skeleton className="my-4 mr-auto h-10 w-[240px]" />}>
-        <ListTabs id="1" />
+        <ListTabs id={params.id} />
       </Suspense>
     </main>
   );
