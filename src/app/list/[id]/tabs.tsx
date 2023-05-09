@@ -1,9 +1,6 @@
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ShowCardSection from "./show-card-section";
 import { apiVanila } from "@/utils/ssr";
-import TabsSwiper from "./swiper";
-import { Separator } from "@/components/ui/separator";
 import ShowTabs from "./tabs-client";
+import { RouterOutputs } from "@/utils/api";
 
 function topGenres(arr: string[]): string[] {
   const frequencyMap: { [key: string]: number } = {};
@@ -27,15 +24,19 @@ function topGenres(arr: string[]): string[] {
   return sortedStrings.slice(0, 4);
 }
 
+export type ListShowItem =
+  RouterOutputs["v1"]["public"]["anime"]["list"]["find"]["RecommendListAnimes"][0];
+
 const ListTabs = async ({ id }: { id: string }) => {
-  const data = await apiVanila.v1.public.anime.retreive.query({
-    title: id,
-  });
+  const data = await apiVanila.v1.public.anime.list.find.query(id);
+
   const genres = topGenres(
-    data.map((item) => item.AnimeGenre.flatMap((i) => i.genreId)).flat()
+    data.RecommendListAnimes.map((item) =>
+      item.anime.AnimeGenre.flatMap((i) => i.genreId)
+    ).flat()
   );
 
-  return <ShowTabs data={data} genres={genres} />;
+  return <ShowTabs data={data.RecommendListAnimes} genres={genres} />;
 };
 
 export default ListTabs;

@@ -1,9 +1,9 @@
 "use client";
 
-import { type AnimeShow } from "@/app/recommend/anime-card";
 import { TabsContent } from "@radix-ui/react-tabs";
 import ShowCard from "./show-card";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { type ListShowItem } from "./tabs";
 
 const ShowCardSection = ({
   genres,
@@ -11,20 +11,20 @@ const ShowCardSection = ({
   value,
 }: {
   value: string;
-  data: AnimeShow[];
+  data: ListShowItem[];
   genres: string[];
 }) => {
   const [conRef] = useAutoAnimate();
   const filtredData = data.filter((item) =>
-    item.AnimeGenre.map((g) => g.genreId).includes(value)
+    item.anime.AnimeGenre.map((g) => g.genreId).includes(value)
   );
   return (
     <TabsContent className="w-full" value={value}>
       <div className="flex w-full flex-wrap gap-4" ref={conRef}>
         {value === "ALL" &&
-          data.map((item) => <ShowCard key={item.id} show={item} />)}
+          data.map((item) => <ShowCard key={item.id} showItem={item} />)}
         {value !== "ALL" &&
-          filtredData.map((item) => <ShowCard key={item.id} show={item} />)}
+          filtredData.map((item) => <ShowCard key={item.id} showItem={item} />)}
       </div>
     </TabsContent>
   );

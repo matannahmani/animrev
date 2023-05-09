@@ -6,25 +6,26 @@ export function sanitizeString(input: string): string {
   // Remove any remaining special characters and new lines
   return sanitizedString.replace(/[^a-zA-Z0-9\s]|[\r\n]/g, "");
 }
-export function generatePrompt(shows: showAtom[]) {
-  const descriptions = shows.map((show) =>
-    sanitizeString(show?.description ?? "")
-  );
-  const generes = shows.map(
-    (show) => show?.AnimeGenre.map((gen) => gen.genreId) ?? []
-  );
+export function outputExtractor(output: string): string {
+  const start = output.indexOf("STRINGSTART");
+  const end = output.indexOf("STRINGEND");
+  if (start === -1 || end === -1) {
+    return "";
+  }
+  return output.slice(start + 11, end);
+}
+
+export function generatePrompt(description: string[], genres: string[][]) {
+  const descriptions = description.map((desc) => sanitizeString(desc ?? ""));
+  const generes = genres.flat();
   return `
   CONTEXT:
-  You're preapring a json object that will be used to scan a vector database of anime shows to find best recommandations.
-  1. Find the common description between the shows.
-  2. Find the common generes clusters between the shows.
-  TASK:
-  Return a json object with the following format:
-  {
-    "commonDesc": string[]
-    "commonGenres": string[]
-  }
-  DATASET:
+  Extract the common keywords from the description.
+  ONLY OUTPUT USING THIS FORMAT:
+  STRINGSTART
+  ** OUTPUT **
+  STRINGEND
+    DATASET:
   ${JSON.stringify({ descriptions, generes }, null, 2)}
   `;
 }

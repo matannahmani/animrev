@@ -18,9 +18,9 @@ export async function generateMetadata({
   params: { id: string };
 }): Promise<Metadata> {
   const { id } = params;
-  const product = apiVanila.v1.public.anime.retreive.query({
-    title: id,
-  });
+  // const product = apiVanila.v1.public.anime.retreive.query({
+  //   title: id,
+  // });
   // console.log(product);
   // console.log((await product));
 
@@ -28,12 +28,13 @@ export async function generateMetadata({
 }
 
 const ListDescription = async ({ id }: { id: string }) => {
-  const data = await apiVanila.v1.public.anime.retreive.query({
-    title: id,
-  });
+  const data = await apiVanila.v1.public.anime.list.find.query(id);
   return (
     <blockquote className="italic text-slate-500">
-      Generated from #Bleach #Naruto #OnePiece
+      Generated from{" "}
+      {data.RecommendListPromptShows.map(
+        (show) => `#${show.anime.englishTitle || show.anime.romajiTitle}`
+      ).join(" ")}
     </blockquote>
   );
 };

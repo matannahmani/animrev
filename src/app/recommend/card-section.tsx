@@ -2,8 +2,8 @@
 import { RQProvider } from "@/components/rq-provider";
 import { Button } from "@/components/ui/button";
 import { atom, useAtom, useAtomValue } from "jotai";
-import { Plus } from "lucide-react";
-import { useMemo } from "react";
+import { Loader2, Plus } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
 import { splitAtom } from "jotai/utils";
 import { RouterOutputs } from "@/utils/api";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiVanila } from "@/utils/ssr";
 import { generatePrompt } from "./generatePrompt";
+import { useRouter } from "next/navigation";
 // to reduce bundle size we use dynamic import
 const AnimeCard = dynamic(() => import("./anime-card"), {
   loading: () => <Skeleton className="h-[61.33px] w-full" />,
@@ -28,6 +29,8 @@ export const useSelectShowsId = () => {
 
 const CardSectionFooter = () => {
   const [list, setList] = useAtom(showsAtom);
+  const [isLoading, setLoading] = useState(false);
+  const router = useRouter();
   const canGenerate = useMemo(() => {
     // filter out null
     const filtered = list.filter((item) => item !== null);
@@ -50,13 +53,24 @@ const CardSectionFooter = () => {
       </Button>
       <Button
         size="sm"
-        onClick={() => {
-          const prompt = generatePrompt(list);
-          console.log(prompt);
+        onClick={async () => {
+          setLoading(true);
+          try {
+            const res = await apiVanila.v1.public.anime.list.generate.query({
+              showIds: list.map((item) => item?.id ?? -1),
+            });
+            router.push(`/list/${res.listId}`);
+            console.log(res);
+          } catch (err) {
+            console.log(err);
+          } finally {
+            setLoading(false);
+          }
         }}
-        disabled={!canGenerate}
+        disabled={!canGenerate || isLoading}
         variant="default"
       >
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Generate List
       </Button>
     </div>

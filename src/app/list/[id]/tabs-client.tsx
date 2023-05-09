@@ -4,13 +4,13 @@ import { Tabs } from "@/components/ui/tabs";
 import ShowCardSection from "./show-card-section";
 import TabsSwiper from "./swiper";
 import { useState } from "react";
-import { AnimeShow } from "@/app/recommend/anime-card";
+import { type ListShowItem } from "./tabs";
 
 const ShowTabs = ({
   data,
   genres,
 }: {
-  data: AnimeShow[];
+  data: ListShowItem[];
   genres: string[];
 }) => {
   const [value, setValue] = useState("ALL");

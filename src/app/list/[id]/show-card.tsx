@@ -1,4 +1,3 @@
-import { type AnimeShow } from "@/app/recommend/anime-card";
 import { getTailwindColorsForString } from "@/app/recommend/getTailwindColorsForString";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -8,6 +7,7 @@ import { sanitizeString } from "@/app/recommend/generatePrompt";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Crosshair, Frown, Smile } from "lucide-react";
 import ShowCardActions from "./show-card-actions";
+import { type ListShowItem } from "./tabs";
 
 function textToColor(str: string) {
   const colorPairs = [
@@ -31,7 +31,8 @@ function textToColor(str: string) {
   return (colorPairs?.[index] || colorPairs[0]) as string;
 }
 
-const ShowCard = ({ show }: { show: AnimeShow }) => {
+const ShowCard = ({ showItem }: { showItem: ListShowItem }) => {
+  const show = showItem.anime;
   return (
     <div
       className="flex	 h-[265px] w-full overflow-hidden rounded bg-slate-900 shadow-lg shadow-slate-900/60
@@ -95,7 +96,7 @@ const ShowCard = ({ show }: { show: AnimeShow }) => {
                   )}
                 >
                   <Crosshair className={"h-5 w-5 "} />
-                  {80}%
+                  {showItem.accuracy}%
                 </span>
               </div>
             </div>
