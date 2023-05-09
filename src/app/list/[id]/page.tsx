@@ -40,7 +40,9 @@ export async function generateMetadata({
 }
 
 const ListDescription = async ({ id }: { id: string }) => {
-  const data = await apiVanila.v1.public.anime.list.find.query(id);
+  const data = await apiVanila.v1.public.anime.list.find.query({
+    id,
+  });
   return (
     <blockquote className="italic text-slate-500">
       Generated from{" "}
