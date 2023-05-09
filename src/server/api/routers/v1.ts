@@ -174,36 +174,42 @@ export const v1 = createTRPCRouter({
               listId: newList.id,
             };
           }),
-        find: publicProcedure.input(z.string()).query(async ({ input }) => {
-          const list = await prisma.recommendList.findUnique({
-            where: {
-              id: Number(input),
-            },
-            include: {
-              RecommendListAnimes: {
-                include: {
-                  anime: {
-                    include: {
-                      AnimeGenre: true,
-                      studio: true,
+        find: publicProcedure
+          .input(
+            z.object({
+              id: z.string(),
+            })
+          )
+          .query(async ({ input }) => {
+            const list = await prisma.recommendList.findUnique({
+              where: {
+                id: Number(input.id),
+              },
+              include: {
+                RecommendListAnimes: {
+                  include: {
+                    anime: {
+                      include: {
+                        AnimeGenre: true,
+                        studio: true,
+                      },
+                    },
+                  },
+                },
+                RecommendListPromptShows: {
+                  include: {
+                    anime: {
+                      include: {
+                        AnimeGenre: true,
+                      },
                     },
                   },
                 },
               },
-              RecommendListPromptShows: {
-                include: {
-                  anime: {
-                    include: {
-                      AnimeGenre: true,
-                    },
-                  },
-                },
-              },
-            },
-          });
-          if (!list) throw new TRPCError({ code: "NOT_FOUND" });
-          return list;
-        }),
+            });
+            if (!list) throw new TRPCError({ code: "NOT_FOUND" });
+            return list;
+          }),
       }),
     }),
   }),

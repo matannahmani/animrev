@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import ListTabs from "./tabs";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { prisma } from "@/server/db";
 
 // The `fetch` response is cached and reused between both functions
 // below, resulting in a single API request. If you cannot use `fetch`

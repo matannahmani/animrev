@@ -28,7 +28,9 @@ export type ListShowItem =
   RouterOutputs["v1"]["public"]["anime"]["list"]["find"]["RecommendListAnimes"][0];
 
 const ListTabs = async ({ id }: { id: string }) => {
-  const data = await apiVanila.v1.public.anime.list.find.query(id);
+  const data = await apiVanila.v1.public.anime.list.find.query({
+    id: id,
+  });
 
   const genres = topGenres(
     data.RecommendListAnimes.map((item) =>
