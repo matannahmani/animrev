@@ -107,32 +107,85 @@ model Studio {
   Anime Anime[]
 }
 
+model RecommendListAnimes {
+  id              Int           @id @default(autoincrement())
+  recommendList   RecommendList @relation(fields: [recommendListId], references: [id])
+  recommendListId Int           @map(name: "recommend_list_id")
+  accuracy        Int           @map(name: "accuracy")
+  anime           Anime         @relation(fields: [animeId], references: [id])
+  animeId         Int           @map(name: "anime_id")
+
+  @@index([recommendListId])
+  @@index([animeId])
+}
+
+model RecommendListDescriptions {
+  id              Int           @id @default(autoincrement())
+  recommendList   RecommendList @relation(fields: [recommendListId], references: [id])
+  recommendListId Int           @map(name: "recommend_list_id")
+  description     String        @map(name: "description")
+
+  @@index([recommendListId])
+}
+
+model RecommendListKeywords {
+  id              Int           @id @default(autoincrement())
+  recommendList   RecommendList @relation(fields: [recommendListId], references: [id])
+  recommendListId Int           @map(name: "recommend_list_id")
+  keyword         String        @map(name: "keyword")
+
+  @@index([recommendListId])
+}
+
+model RecommendListPromptShows {
+  id              Int           @id @default(autoincrement())
+  recommendList   RecommendList @relation(fields: [recommendListId], references: [id])
+  recommendListId Int           @map(name: "recommend_list_id")
+  animeId         Int           @map(name: "anime_id")
+  anime           Anime         @relation(fields: [animeId], references: [id])
+
+  @@index([recommendListId])
+  @@index([animeId])
+}
+
+model RecommendList {
+  id                        Int                         @id @default(autoincrement())
+  createdAt                 DateTime                    @default(now())
+  creatorUserId             String?                     @map(name: "creator_user_id")
+  RecommendListAnimes       RecommendListAnimes[]
+  RecommendListDescriptions RecommendListDescriptions[]
+  RecommendListKeywords     RecommendListKeywords[]
+  RecommendListPromptShows  RecommendListPromptShows[]
+}
+
 model Anime {
-  id                 Int             @id @default(autoincrement()) @map(name: "anime_id")
-  aniListId          Int             @unique @map(name: "ani_list_id")
-  romajiTitle        String          @map(name: "romaji_title")
-  englishTitle       String?         @map(name: "english_title")
-  nativeTitle        String?         @map(name: "native_title")
-  type               String          @map(name: "type")
-  studio             Studio?         @relation(fields: [studioId], references: [id])
-  studioId           Int             @map(name: "studio_id")
-  format             String          @map(name: "format")
-  status             String          @map(name: "status")
-  episodes           Int             @map(name: "episodes")
-  duration           Int?            @map(name: "duration")
-  coverImage         String?         @map(name: "cover_image")
-  bannerImage        String?         @map(name: "banner_image")
-  averageScore       Float           @map(name: "average_score")
-  meanScore          Int             @map(name: "mean_score")
-  popularity         Int             @map(name: "popularity")
-  startDate          DateTime?       @map(name: "start_date")
-  endDate            DateTime?       @map(name: "end_date")
-  season             String?         @map(name: "season")
-  seasonYear         Int?            @map(name: "season_year")
-  description        String?         @map(name: "description") @db.Text 
-  AnimeGenre         AnimeGenre[]
-  relationsFromAnime AnimeRelation[] @relation("FromAnime")
-  relationsToAnime   AnimeRelation[] @relation("ToAnime")
+  id                       Int                        @id @default(autoincrement()) @map(name: "anime_id")
+  aniListId                Int                        @unique @map(name: "ani_list_id")
+  romajiTitle              String                     @map(name: "romaji_title")
+  englishTitle             String?                    @map(name: "english_title")
+  nativeTitle              String?                    @map(name: "native_title")
+  type                     String                     @map(name: "type")
+  studio                   Studio?                    @relation(fields: [studioId], references: [id])
+  studioId                 Int                        @map(name: "studio_id")
+  format                   String                     @map(name: "format")
+  status                   String                     @map(name: "status")
+  episodes                 Int                        @map(name: "episodes")
+  duration                 Int?                       @map(name: "duration")
+  coverImage               String?                    @map(name: "cover_image")
+  bannerImage              String?                    @map(name: "banner_image")
+  averageScore             Float                      @map(name: "average_score")
+  meanScore                Int                        @map(name: "mean_score")
+  popularity               Int                        @map(name: "popularity")
+  startDate                DateTime?                  @map(name: "start_date")
+  endDate                  DateTime?                  @map(name: "end_date")
+  season                   String?                    @map(name: "season")
+  seasonYear               Int?                       @map(name: "season_year")
+  description              String?                    @map(name: "description") @db.Text
+  AnimeGenre               AnimeGenre[]
+  relationsFromAnime       AnimeRelation[]            @relation("FromAnime")
+  relationsToAnime         AnimeRelation[]            @relation("ToAnime")
+  RecommendListAnimes      RecommendListAnimes[]
+  RecommendListPromptShows RecommendListPromptShows[]
 
   @@index([season, seasonYear])
   @@index([aniListId])
@@ -153,8 +206,8 @@ enum ConnectionType {
 
 model AnimeRelation {
   id             Int            @id @default(autoincrement())
-  fromAnimeAniId    Int            @map(name: "from_anime_id")
-  toAnimeAniId      Int            @map(name: "to_anime_id")
+  fromAnimeAniId Int            @map(name: "from_anime_id")
+  toAnimeAniId   Int            @map(name: "to_anime_id")
   connectionType ConnectionType @map(name: "connection_type")
 
   fromAnime Anime? @relation("FromAnime", fields: [fromAnimeAniId], references: [aniListId])
