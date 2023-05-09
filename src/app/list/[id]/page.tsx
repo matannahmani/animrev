@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import ListTabs from "./tabs";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { prisma } from "@/server/db";
 
 // The `fetch` response is cached and reused between both functions
 // below, resulting in a single API request. If you cannot use `fetch`
@@ -11,7 +12,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 // https://beta.nextjs.org/docs/data-fetching/caching
 
 // export const revalidate = 86400; // revalidate every 24 hour
-export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const fetchCache = "auto";
+export const dynamic = "auto";
+
+export async function generateStaticParams() {
+  const ids = await prisma.recommendList.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 25,
+  });
+
+  return ids.map(({ id }) => ({ params: { id: id.toString() } }));
+}
 
 export async function generateMetadata({
   params,
