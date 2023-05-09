@@ -14,10 +14,10 @@ const config = {
    *
    * @see https://github.com/vercel/next.js/issues/41980
    */
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en",
-  },
+  // i18n: {
+  //   locales: ["en"],
+  //   defaultLocale: "en",
+  // },
   // modularizeImports: {
   //   "lucide-react": {
   //     transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
@@ -26,8 +26,8 @@ const config = {
   images: {
     domains: ["s4.anilist.co"],
   },
-  experimental: {
-    appDir: true,
-  },
+  // experimental: {
+  //   appDir: true,
+  // },
 };
 export default config;
