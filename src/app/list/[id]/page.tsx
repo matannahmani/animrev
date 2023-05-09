@@ -12,19 +12,17 @@ import { prisma } from "@/server/db";
 // https://beta.nextjs.org/docs/data-fetching/caching
 
 // export const revalidate = 86400; // revalidate every 24 hour
-export const dynamicParams = true;
-export const fetchCache = "auto";
-export const dynamic = "auto";
+export const dynamic = "force-static";
 
 export async function generateStaticParams() {
-  const ids = await prisma.recommendList.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 25,
-  });
-
-  return ids.map(({ id }) => ({ params: { id: id.toString() } }));
+  // const ids = await prisma.recommendList.findMany({
+  //   orderBy: {
+  //     createdAt: "desc",
+  //   },
+  //   take: 25,
+  // });
+  // return ids.map(({ id }) => ({ id: id.toString() }));
+  return [];
 }
 
 export async function generateMetadata({
