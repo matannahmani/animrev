@@ -39,7 +39,7 @@ const ListDescription = async ({ id }: { id: string }) => {
   );
 };
 
-export default async function Page({ params }: { params: { id: string } }) {
+async function ListPage({ params }: { params: { id: string } }) {
   return (
     <main className=" mt-2 flex flex-wrap content-start items-start justify-center text-start">
       <div className="flex basis-full flex-col items-start justify-center">
@@ -56,3 +56,5 @@ export default async function Page({ params }: { params: { id: string } }) {
     </main>
   );
 }
+
+export default ListPage;
