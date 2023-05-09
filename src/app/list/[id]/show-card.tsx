@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Crosshair, Frown, Smile } from "lucide-react";
 import ShowCardActions from "./show-card-actions";
 import { type ListShowItem } from "./tabs";
+import BlurImage from "./blur-image";
 
 function textToColor(str: string) {
   const colorPairs = [
@@ -60,8 +61,7 @@ const ShowCard = ({ showItem }: { showItem: ListShowItem }) => {
           </span>
         </div>
       </div>
-      <Image
-        priority
+      <BlurImage
         width={185}
         height={265}
         className="!h-[265px] !w-[185px] object-cover"
