@@ -10,7 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 // directly, you can use `cache`. Learn more:
 // https://beta.nextjs.org/docs/data-fetching/caching
 
-export const revalidate = 86400; // revalidate every 24 hour
+// export const revalidate = 86400; // revalidate every 24 hour
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
