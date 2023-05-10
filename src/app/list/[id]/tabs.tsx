@@ -1,6 +1,7 @@
 import { apiVanila } from "@/utils/ssr";
 import ShowTabs from "./tabs-client";
 import { RouterOutputs } from "@/utils/api";
+import { getListData } from "./server-code";
 
 function topGenres(arr: string[]): string[] {
   const frequencyMap: { [key: string]: number } = {};
@@ -28,9 +29,7 @@ export type ListShowItem =
   RouterOutputs["v1"]["public"]["anime"]["list"]["find"]["RecommendListAnimes"][0];
 
 const ListTabs = async ({ id }: { id: string }) => {
-  const data = await apiVanila.v1.public.anime.list.find.query({
-    id: id,
-  });
+  const data = await getListData({ id });
 
   const genres = topGenres(
     data.RecommendListAnimes.map((item) =>
