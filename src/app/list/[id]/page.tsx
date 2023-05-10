@@ -1,9 +1,5 @@
-import { Separator } from "@/components/ui/separator";
-import { apiVanila } from "@/utils/ssr";
 import type { Metadata } from "next";
 import ListTabs from "./tabs";
-import { Suspense, cache } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getListData } from "./server-code";
 
 export const revalidate = 86400; // revalidate every 24 hour
@@ -54,13 +50,13 @@ async function ListPage({ params }: { params: { id: string } }) {
         <h1 className="basis-full scroll-m-20 text-xl font-semibold tracking-tight lg:text-2xl">
           List #{params.id}
         </h1>
-        <Suspense fallback={<Skeleton className="mr-auto h-10 w-[240px]" />}>
-          <ListDescription id={params.id} />
-        </Suspense>
+        {/* <Suspense fallback={<Skeleton className="mr-auto h-10 w-[240px]" />}> */}
+        <ListDescription id={params.id} />
+        {/* </Suspense> */}
       </div>
-      <Suspense fallback={<Skeleton className="my-4 mr-auto h-10 w-[240px]" />}>
-        <ListTabs id={params.id} />
-      </Suspense>
+      {/* <Suspense fallback={<Skeleton className="my-4 mr-auto h-10 w-[240px]" />}> */}
+      <ListTabs id={params.id} />
+      {/* </Suspense> */}
     </main>
   );
 }
