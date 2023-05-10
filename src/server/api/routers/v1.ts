@@ -145,9 +145,9 @@ export const v1 = createTRPCRouter({
               promptChoice: outputExtractor(choice.content),
               shows: topKShows.map((show) => ({
                 ...show,
-                accuracy: topK.matches?.find(
-                  (match) => Number(match.id) === show.id
-                )?.score,
+                accuracy:
+                  (topK.matches?.find((match) => Number(match.id) === show.id)
+                    ?.score ?? 0) * 100,
               })),
             };
             // lastly we need to create the list
@@ -165,7 +165,7 @@ export const v1 = createTRPCRouter({
                 data: output.shows.map((show) => ({
                   recommendListId: newList.id,
                   animeId: show.id,
-                  accuracy: show.accuracy ?? 0 * 100,
+                  accuracy: show.accuracy,
                 })),
               });
             await Promise.all([newItemsPromise, listRecommendationsPromise]);
@@ -194,6 +194,9 @@ export const v1 = createTRPCRouter({
                         studio: true,
                       },
                     },
+                  },
+                  orderBy: {
+                    accuracy: "desc",
                   },
                 },
                 RecommendListPromptShows: {

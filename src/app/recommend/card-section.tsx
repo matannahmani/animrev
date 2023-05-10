@@ -12,10 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { apiVanila } from "@/utils/ssr";
 import { generatePrompt } from "./generatePrompt";
 import { useRouter } from "next/navigation";
-// to reduce bundle size we use dynamic import
-const AnimeCard = dynamic(() => import("./anime-card"), {
-  loading: () => <Skeleton className="h-[61.33px] w-full" />,
-});
+import AnimeCard from "./anime-card";
+
 type AnimeShow = RouterOutputs["v1"]["public"]["anime"]["retreive"][0];
 
 export type showAtom = AnimeShow | null;

@@ -40,7 +40,7 @@ const ShowCard = ({ showItem }: { showItem: ListShowItem }) => {
       md:w-[460px]
     "
     >
-      <div className="absolute z-0 h-[265px] w-[185px] bg-gradient-to-t from-black to-transparent">
+      <div className="absolute z-10 h-[265px] w-[185px] bg-gradient-to-t from-black to-transparent">
         <div className="absolute bottom-0 flex flex-col items-start space-y-2 px-2 py-2 text-start">
           <span
             className={cn(

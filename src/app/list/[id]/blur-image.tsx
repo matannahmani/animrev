@@ -12,13 +12,10 @@ export default function BlurImage(props: ImageProps) {
       {...props}
       src={props.src}
       className={cn(
-        `
-                duration-700 ease-in-out group-hover:opacity-75
-                ${
-                  isLoading
-                    ? "scale-110 blur-2xl grayscale"
-                    : "scale-100 blur-0 grayscale-0"
-                })`,
+        "duration-700 ease-in-out",
+        isLoading
+          ? "scale-110 blur-2xl grayscale"
+          : "scale-100 blur-0 grayscale-0",
         props.className
       )}
       onLoadingComplete={() => setLoading(false)}
