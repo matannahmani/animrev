@@ -56,8 +56,11 @@ const createDemoEmbeddings = async () => {
       select: {
         id: true,
         romajiTitle: true,
+        studio: true,
+        type: true,
         englishTitle: true,
         description: true,
+        studioId: true,
       },
       skip: i * batchSize,
       take: batchSize,
@@ -83,6 +86,8 @@ const createDemoEmbeddings = async () => {
           description: animeShows[index]?.description || "",
           englishTitle: animeShows[index]?.englishTitle || "",
           romajiTitle: animeShows[index]?.romajiTitle || "",
+          mediaType: animeShows[index]?.type || "",
+          studio: animeShows[index]?.studio?.name || "",
         },
       };
     });
