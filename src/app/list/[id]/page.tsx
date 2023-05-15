@@ -5,16 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 
 export const revalidate = 86400; // revalidate every 24 hour
-export async function generateStaticParams() {
-  // const ids = await prisma.recommendList.findMany({
-  //   orderBy: {
-  //     createdAt: "desc",
-  //   },
-  //   take: 25,
-  // });
-  // return ids.map(({ id }) => ({ id: id.toString() }));
-  return [];
-}
 
 export async function generateMetadata({
   params,

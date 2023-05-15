@@ -3,14 +3,11 @@ import { RQProvider } from "@/components/rq-provider";
 import { Button } from "@/components/ui/button";
 import { atom, useAtom, useAtomValue } from "jotai";
 import { Loader2, Plus } from "lucide-react";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState } from "react";
 import { splitAtom } from "jotai/utils";
 import { RouterOutputs } from "@/utils/api";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import dynamic from "next/dynamic";
-import { Skeleton } from "@/components/ui/skeleton";
 import { apiVanila } from "@/utils/ssr";
-import { generatePrompt } from "./generatePrompt";
 import { useRouter } from "next/navigation";
 import AnimeCard from "./anime-card";
 
