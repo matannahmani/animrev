@@ -54,13 +54,13 @@ const CardSectionFooter = () => {
         onClick={async () => {
           setLoading(true);
           try {
-            const res = await apiVanila.v1.public.anime.list.generate.query({
+            const res = await apiVanila.v1.public.anime.list.generate.mutate({
               showIds: list.map((item) => item?.id ?? -1),
             });
             router.push(`/list/${res.listId}`);
             console.log(res);
           } catch (err) {
-            console.log(err);
+            console.error(err);
           } finally {
             setLoading(false);
           }

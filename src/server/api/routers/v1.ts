@@ -72,7 +72,7 @@ export const v1 = createTRPCRouter({
               showIds: z.number().array().min(2).max(5),
             })
           )
-          .query(async ({ input }) => {
+          .mutation(async ({ input }) => {
             const shows = await prisma.anime.findMany({
               where: {
                 id: {

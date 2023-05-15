@@ -1,7 +1,6 @@
 import { getTailwindColorsForString } from "@/app/recommend/getTailwindColorsForString";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { SwiperRender } from "./swiper";
 import { sanitizeString } from "@/app/recommend/generatePrompt";
 import { ScrollArea } from "@/components/ui/scroll-area";
